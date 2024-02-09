@@ -13,10 +13,10 @@ export type userType = z.infer<typeof userValidation>;
 
 export const productValidation = z.object({
   userId: z.string().min(1, {
-    message: "Value too short",
+    message: "userId too short",
   }),
   image: z.string().min(1, {
-    message: "Value too short",
+    message: "Image value too short",
   }),
   details: z.string().min(1, {
     message: "Value too short",
@@ -31,8 +31,6 @@ export const productValidation = z.object({
 
 export type productType = z.infer<typeof productValidation>;
 
-//userId,name,worktype,email
-
 export const workerValidation = z.object({
   userId: z.string().min(1, {
     message: "Value too short",
@@ -40,12 +38,29 @@ export const workerValidation = z.object({
   name: z.string().min(1, {
     message: "Value too short",
   }),
-  worktype: z.string().min(1, {
-    message: "Value too short",
-  }),
+  worktype: z.enum(["parttime", "fulltime"]),
   email: z.string().min(1, {
     message: "Value too short",
   }),
 });
 
 export type workerType = z.infer<typeof workerValidation>;
+
+export const commentValidation = z.object({
+  userId: z.string().min(1, {
+    message: "Value too short",
+  }),
+  comment: z.string().min(1, {
+    message: "Value too short",
+  }),
+});
+
+export type commentType = z.infer<typeof commentValidation>;
+
+export const editCommentValidation = z.object({
+  comment: z.string().min(1, {
+    message: "Value too short",
+  }),
+});
+
+export type editCommentType = z.infer<typeof editCommentValidation>;

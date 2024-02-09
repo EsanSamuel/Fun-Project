@@ -11,3 +11,5 @@ const useModal = create<modalProps>((set) => ({
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
 }));
+
+export default useModal

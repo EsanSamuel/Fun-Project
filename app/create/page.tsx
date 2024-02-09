@@ -4,16 +4,18 @@ import { ApiContext, TProps } from "@/context/ApiProvider";
 import { useSession } from "next-auth/react";
 import api from "@/lib/api";
 import Image from "next/image";
+import useModal from "@/hooks/useModal";
+import { productProps, workerProps } from "@/types";
 
 const page = () => {
-  const { users, workers } = useContext(ApiContext) as TProps;
+  const { users, workers, products, user } = useContext(ApiContext) as TProps;
   const { data: session } = useSession();
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState<string>("");
   const [details, setDetails] = useState("");
   const [image, setImage] = useState("");
   const [price, setPrice] = useState("");
   const [filterLanguage, setFilterLanguage] = useState("");
-  const [filterWorktype, setFilterWorktype] = useState("");
+  const [filterWorktype, setFilterWorktype] = useState<string>("");
   const [searchLanguage, setSearchLanguage] = useState("");
   const [number, setNumbers] = useState<number>();
   const [code, setCode] = useState("");
@@ -22,37 +24,23 @@ const page = () => {
   const [worktype, setWorktype] = useState("");
 
   const data = [
-    {
-      id: 1,
-      name: "Backend Api",
-      language: "TypeScript",
-    },
-    {
-      id: 2,
-      name: "Frontend",
-      language: "JavaScript",
-    },
-    {
-      id: 3,
-      name: "Python Script",
-      language: "Python",
-    },
-    {
-      id: 4,
-      name: "Go APi",
-      language: "Go",
-    },
-    {
-      id: 5,
-      name: "Clone",
-      language: "TypeScript",
-    },
-    {
-      id: 6,
-      name: "Go Network",
-      language: "Go",
-    },
+    { id: 1, name: "Backend Api", language: "TypeScript" },
+    { id: 2, name: "Frontend", language: "JavaScript" },
+    { id: 3, name: "Python Script", language: "Python" },
+    { id: 4, name: "Go APi", language: "Go" },
+    { id: 5, name: "Clone", language: "TypeScript" },
+    { id: 6, name: "Go Network", language: "Go" },
   ];
+
+  const data2 = [
+    { id: 1, name: "Backend Api2", language: "TypeScript" },
+    { id: 2, name: "Frontend2", language: "JavaScript" },
+    { id: 3, name: "Python Script2", language: "Python" },
+  ];
+
+  //spread operators
+  const addData = [...data, ...data2];
+  console.log(addData);
 
   const filterData = (language: string) =>
     filterLanguage ? data.filter((item) => item.language === language) : data;
@@ -128,8 +116,22 @@ const page = () => {
 
   const filterWork = (worktype: string) =>
     filterWorktype
-      ? workers.filter((item: any) => item.worktype === worktype)
+      ? workers.filter((item: workerProps) => item.worktype === worktype)
       : workers;
+
+  const clearWorktypeFilter = () => {
+    setFilterWorktype("");
+  };
+
+  const modal = useModal();
+
+  const openModal = () => {
+    modal.onOpen();
+  };
+
+  const closeModal = () => {
+    modal.onClose();
+  };
 
   return (
     <div className="p-5">
@@ -226,7 +228,8 @@ const page = () => {
             <button onClick={() => setFilterWorktype("parttime")}>
               PartTime
             </button>
-            {filterWork(filterWorktype).map((item: Record<string, any>) => (
+            <button onClick={clearWorktypeFilter}>Clear Filter</button>
+            {filterWork(filterWorktype).map((item: workerProps) => (
               <div key={item._id}>
                 <h1>{item.name}</h1>
                 <h1>{item.worktype}</h1>
@@ -234,7 +237,30 @@ const page = () => {
             ))}
           </div>
         </div>
+        {modal.isOpen === false ? (
+          <button onClick={openModal}>modal</button>
+        ) : (
+          <button onClick={closeModal}>modal</button>
+        )}
+        {modal.isOpen === true && <h1>hello</h1>}
       </div>
+
+      {products.map((item: productProps) => {
+        const deleteProduct = async () => {
+          const response = await api.delete(`/api/product/${item._id}`);
+          console.log(response.data + "product deleted");
+        };
+        return (
+          <div key={item._id}>
+            <h1>{item.author.username}</h1>
+            <h1>{item.title}</h1>
+            <h1>{item.price}</h1>
+            <button onClick={deleteProduct}>Delete</button>
+          </div>
+        );
+      })}
+
+      {user.email}
     </div>
   );
 };

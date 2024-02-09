@@ -9,16 +9,46 @@ import api from "@/lib/api";
 import useProduct from "@/hooks/useProduct";
 import { useSession } from "next-auth/react";
 import useWorker from "@/hooks/useWorker";
+import useUser from "@/hooks/useUser";
 
 export type TProps = {
-  users: any;
-  createProduct: any;
-  setTitle: any;
-  setDetails: any;
-  setPrice: any;
-  setImage: any;
-  image: string;
-  workers: any;
+  users: {
+    _id: string;
+    username: string;
+    image: string;
+    email: string;
+  }[];
+  products: {
+    author: {
+      _id: string;
+      username: string;
+      image: string;
+      email: string;
+    };
+    _id: string;
+    title: string;
+    details: string;
+    price: string;
+    image: string;
+  }[];
+  workers: {
+    _id: string;
+    name: string;
+    email: string;
+    worktype: "fulltime" | "parttime";
+    author: {
+      _id: string;
+      username: string;
+      email: string;
+      image: string;
+    };
+  }[];
+  user: {
+    _id: string;
+    username: string;
+    image: string;
+    email: string;
+  };
 };
 
 export const ApiContext = createContext<TProps | null>(null);
@@ -37,39 +67,36 @@ const ApiProvider = ({ children }: { children: ReactNode }) => {
     console.log("loading users...");
   }
 
-  const { data: workers = [] } = useWorker();
+  const { data: workers = [], isLoading: loadingWorkers } = useWorker();
   console.log(workers);
 
-  const createProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("/api/product", {
-        userId: session?.user?.id,
-        details,
-        title,
-        price,
-        image,
-      });
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  if (loadingWorkers) {
+    console.log("loading workers...");
+  }
 
-  const { data: products = [] } = useProduct();
+  const { data: products = [], isLoading: loadingProducts } = useProduct();
   console.log(products);
+
+  if (loadingProducts) {
+    console.log("loading products...");
+  }
+
+  const { data: user, isLoading: loadingLoginuser } = useUser(
+    `api/user/${session?.user?.id}`
+  );
+  console.log(user);
+
+  if (loadingLoginuser) {
+    console.log("loading user...");
+  }
 
   return (
     <ApiContext.Provider
       value={{
         users,
-        createProduct,
-        setDetails,
-        setPrice,
-        setImage,
-        setTitle,
-        image,
+        products,
         workers,
+        user,
       }}
     >
       {children}
